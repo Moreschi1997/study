@@ -1,47 +1,43 @@
-const r = require('request');
-
 const authToken = process.env['AUTH_TOKEN'];
-if (authToken === undefined) {
+
+if (!authToken) {
     throw new Error("Must set AUTH_TOKEN environment variable");
 }
 
 const headers = {
-    "Authorization": `TOKEN ${authToken}`,
-    "user-agent": "@RyanCavanaugh/dt-mergebot Projects Lister",
-    "accept": "application/vnd.github.inertia-preview+json"
+    "Authorization": `Bearer ${authToken}`,
+    "User-Agent": "Modern-Lister-v2026",
+    "Accept": "application/vnd.github.v3+json"
 };
 
-const projects = r('https://api.github.com/repos/DefinitelyTyped/DefinitelyTyped/projects', { headers }, (err, data) => {
-    const body = JSON.parse(data.body);
+async function listColumns() {
+    try {
+        
+        const response = await fetch('https://api.github.com/repos/DefinitelyTyped/DefinitelyTyped/projects', { headers });
+        
+        if (!response.ok) {
+            throw new Error(`Erro API: ${response.status} - Verifique se o seu Token tem permissão de 'Projects'`);
+        }
 
-    console.log(JSON.stringify(JSON.parse(data.body), undefined, 2));
+        const projectsData = await response.json();
 
-    const names = body.map(p => p.name);
-    const ids = body.map(p => p.id);
+        for (const project of projectsData) {
+            console.log(`\n== Project: ${project.name} (ID: ${project.id}) ==`);
+            
+            const colResponse = await fetch(`https://api.github.com/projects/${project.id}/columns`, { headers });
+            const columns = await colResponse.json();
 
-    next();
-
-    function next() {
-        if (names.length === 0) return;
-
-        const name = names.pop();
-        const id = ids.pop();
-
-        const url = `https://api.github.com/projects/${id}/columns`;
-        r(url, { headers }, (err, data) => {
-            if (err) throw err;
-            const cols = JSON.parse(data.body);
-
-            console.log(JSON.stringify(JSON.parse(data.body), undefined, 2));
-
-            console.log(`== Project ${name} (${id}) ==`);
-            console.log("{");
-            for (const c of cols) {
-                console.log(`  \"${c.name}\": ${c.id},`);
+            if (Array.isArray(columns)) {
+                console.log("{");
+                columns.forEach(c => {
+                    console.log(`  "${c.name}": ${c.id},`);
+                });
+                console.log("}");
             }
-            console.log("}");
-
-            next();
-        });
+        }
+    } catch (error) {
+        console.error("Erro na requisição:", error.message);
     }
-});
+}
+
+listColumns();

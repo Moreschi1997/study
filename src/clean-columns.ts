@@ -1,9 +1,8 @@
-import fs = require('fs');
-import path = require('path');
-import request = require('request');
+import { readFile } from 'fs/promises';
 
-type Result = {
-    data: {
+
+interface GraphQLResponse {
+    data?: {
         repository: {
             project: {
                 columns: {
@@ -13,10 +12,7 @@ type Result = {
                                 edges: Array<{
                                     node: {
                                         databaseId: number;
-                                        content: {
-                                            state: "OPEN" | "MERGED" | "CLOSED";
-                                            number: number;
-                                        };
+                                        content: { state: string };
                                     };
                                 }>;
                             };
@@ -26,35 +22,42 @@ type Result = {
             };
         };
     };
-};
-
-const headers = {
-    "User-Agent": "RyanCavanaugh ColumnCleaner",
-    "Authorization": `token ${process.env['AUTH_TOKEN']}`,
-    "Accept": "application/vnd.github.inertia-preview+json"
 }
 
+const authToken = process.env['AUTH_TOKEN'];
+const API_URL = 'https://api.github.com/graphql';
+const REST_URL = 'https://api.github.com/projects/columns/cards';
 
-var cleanCount = 0;
-fs.readFile(path.join(__dirname, '../clean-columns-query.graphql'), { encoding: 'utf-8' }, (err, query) => {
-    if (err) throw err;
+const headers = {
+    "User-Agent": "Modern-ColumnCleaner-v2026",
+    "Authorization": `Bearer ${authToken}`,
+    "Accept": "application/vnd.github.inertia-preview+json",
+    "Content-Type": "application/json"
+};
 
-    request.post('https://api.github.com/graphql', {
-        body: JSON.stringify({ query }),
-        headers
-    }, (err, data) => {
-        if (err) throw err;
-        const result: Result = JSON.parse(data.body);
-        for (const column of result.data.repository.project.columns.edges) {
-            for (const card of column.node.cards.edges.map(c => c.node)) {
-                if (card.content.state !== 'OPEN') {
-                    cleanCount++;
-                    request.delete(`https://api.github.com/projects/columns/cards/${card.databaseId}`, { headers }, (err, _unused) => {
-                        if (err) throw err;
-                    });
-                }
-            }
-        }
-        console.log(`Cleaned ${cleanCount} cards from the backlog project`);
-    });
-});
+async function efficientCleaner() {
+
+    const query = await readFile('./query.graphql', 'utf-8');
+
+    const response = await fetch(API_URL, { method: 'POST', headers, body: JSON.stringify({ query }) });
+    
+    const {data}: GraphQLResponse = await response.json();
+
+    const allCards = data?.repository.project.columns.edges.flatMap(col => col.node.cards.edges) || [];
+
+    const targets = allCards
+        .map(edge => edge.node)
+        .filter(card => card.content.state !== 'OPEN');
+    if (targets.length === 0){
+        return console.log("nothing to clean");
+    }
+
+    await Promise.all(targets.map(card => 
+        fetch(`${REST_URL}/${card.databaseId}`, { method: 'DELETE', headers })
+            .then(res => res.ok ? console.log(`Card ${card.databaseId} removed`) : null)
+    ));
+
+    console.log(`🚀 cleaning completed: ${targets.length} targets processed.`);
+}
+
+efficientCleaner();

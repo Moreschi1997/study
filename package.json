@@ -1,40 +1,19 @@
 {
-  "name": "dt-mergebot",
-  "version": "1.1.0",
-  "description": "dt-mergebot",
-  "main": "index.js",
-  "dependencies": {
-    "@types/node": "^8.5.8",
-    "@types/node-fetch": "^1.6.7",
-    "@types/request": "^2.0.9",
-    "definitelytyped-header-parser": "github:Microsoft/definitelytyped-header-parser#production",
-    "fs-extra": "^4.0.3",
-    "graceful-fs": "^4.1.11",
-    "idembot": "0.0.12",
-    "moment": "^2.20.1",
-    "node-fetch": "^1.7.3",
-    "request": "^2.83.0",
-    "tslint": "^5.8.0",
-    "typescript": "^2.6.2"
-  },
+  "name": "dt-mergebot-master",
+  "version": "1.0.0",
+  "description": "> `git clone https://github.com/RyanCavanaugh/dt-mergebot.git`",
+  "main": "list-project-columns.js",
   "scripts": {
-    "prepublishOnly": "npm run build",
-    "build": "tsc",
-    "watch": "tsc --watch",
-    "dry": "npm run build && node node_modules/idembot/bin/run.js --file bin/rules.js --query all-open-prs.json --dry",
-    "wet": "npm run build && node node_modules/idembot/bin/run.js --file bin/rules.js --query all-open-prs.json",
-    "single": "npm run build && node node_modules/idembot/bin/run.js --file bin/rules.js --single",
-    "cleanproject": "npm run build && node bin/clean-columns.js",
-    "lint": "tslint --project tsconfig.json --format stylish"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/RyanCavanaugh/dt-mergebot.git"
-  },
+  "keywords": [],
   "author": "",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/RyanCavanaugh/dt-mergebot/issues"
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/node": "^25.5.2"
   },
-  "homepage": "https://github.com/RyanCavanaugh/dt-mergebot#readme"
+  "dependencies": {
+    "idembot": "^0.0.12"
+  }
 }

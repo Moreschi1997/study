@@ -1,15 +1,11 @@
 {
     "include": ["src"],
     "compilerOptions": {
-        "outDir": "bin",
-        "strict": true,
-        "module": "commonjs",
-        "target": "es6",
-        "lib": ["es2017"],
-        "types": ["node"],
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "noFallthroughCasesInSwitch": true,
-        "noImplicitReturns": true
-    }
+    "target": "ESNext",
+    "module": "NodeNext", // Recomendado para Node 25
+    "moduleResolution": "NodeNext",
+    "types": ["node"],    // Esta linha resolve os erros de "Cannot find name"
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  }
 }
