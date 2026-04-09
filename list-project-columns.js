@@ -16,7 +16,7 @@ async function listColumns() {
         const response = await fetch('https://api.github.com/repos/DefinitelyTyped/DefinitelyTyped/projects', { headers });
         
         if (!response.ok) {
-            throw new Error(`Erro API: ${response.status} - Verifique se o seu Token tem permissão de 'Projects'`);
+            throw new Error(`Erro API: ${response.status} - check if the Token he has permission of 'Project'`);
         }
 
         const projectsData = await response.json();
@@ -36,7 +36,7 @@ async function listColumns() {
             }
         }
     } catch (error) {
-        console.error("Erro na requisição:", error.message);
+        console.error("Erro in request:", error.message);
     }
 }
 
