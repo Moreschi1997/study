@@ -1,0 +1,11 @@
+{
+    "include": ["src"],
+    "compilerOptions": {
+    "target": "ESNext",
+    "module": "NodeNext", // Recomendado para Node 25
+    "moduleResolution": "NodeNext",
+    "types": ["node"],    // Esta linha resolve os erros de "Cannot find name"
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  }
+}
